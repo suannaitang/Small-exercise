@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>时间</title>
+    <style>
+      .bk {
+        width: 1200px;
+        height: 300px;
+        border: 2px solid #000;
+        top: 50%;
+        left: 50%;
+        margin-left: -600px;
+        margin-top: -300px;
+        position: absolute;
+        background-color: antiquewhite;
+      }
+
+      .time {
+        width: 1100px;
+        height: 200px;
+        border: 2px solid #000;
+        top: 50%;
+        left: 50%;
+        margin-left: -550px;
+        margin-top: -100px;
+        position: absolute;
+        background-color: lavender;
+      }
+
+      .date {
+        width: 1060px;
+        height: 164px;
+        top: 50%;
+        left: 50%;
+        margin-left: -530px;
+        margin-top: -82px;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bk" class="bk">
+      <div id="time" class="time">
+        <div id="date" class="date"></div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  function a(p, q) {
+    for (let i = 0; i < he.length; i++) {
+      let node = document.createElement("div");
+      node.className = "node" + p;
+      node.style.height = "10px";
+      node.style.width = "10px";
+      node.style.backgroundColor = "#000";
+      node.style.position = "absolute";
+      node.style.marginLeft = (he[i].x + p) * size + "px";
+      node.style.marginTop = (he[i].y + q) * size + "px";
+      date.appendChild(node);
+    }
+  }
+
+  function b(p, q) {
+    for (let i = 0; i < wi.length; i++) {
+      let node = document.createElement("div");
+      node.className = "node" + p;
+      node.style.height = "10px";
+      node.style.width = "10px";
+      node.style.backgroundColor = "#000";
+      node.style.position = "absolute";
+      node.style.marginLeft = (wi[i].x + p) * size + "px";
+      node.style.marginTop = (wi[i].y + q) * size + "px";
+      date.appendChild(node);
+    }
+  }
+
+  function c(p, q) {
+    let node = document.createElement("div");
+    node.className = "node" + p;
+    node.style.height = "10px";
+    node.style.width = "10px";
+    node.style.backgroundColor = "#000";
+    node.style.position = "absolute";
+    node.style.marginLeft = p * size + "px";
+    node.style.marginTop = q * size + "px";
+    date.appendChild(node);
+  }
+</script>
+
+<script>
+  function zero(p) {
+    a(p, 0);
+    a(p, hH);
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH * 2);
+  }
+  function one(p) {
+    a(p + oneW, 0);
+    a(p + oneW, hH);
+  }
+  function two(p) {
+    a(p, hH);
+    a(p + hW, 0);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+  function three(p) {
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+  function four(p) {
+    a(p, 0);
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, wH);
+  }
+  function five(p) {
+    a(p, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+  function six(p) {
+    a(p, 0);
+    a(p, hH);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+  function seven(p) {
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+  }
+  function eight(p) {
+    a(p, 0);
+    a(p, hH);
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+  function nine(p) {
+    a(p, 0);
+    a(p + hW, 0);
+    a(p + hW, hH);
+    b(p + wW, 0);
+    b(p + wW, wH);
+    b(p + wW, wH * 2);
+  }
+
+  function point(p) {
+    c(p, pt);
+    c(p, 2 * 8.2 - pt);
+  }
+</script>
+
+<script>
+  function tt(p, i) {
+    clear(p);
+    switch (i % 10) {
+      case 0:
+        zero(p);
+        if (p == 88) {
+          tt(p - 10, k++);
+        }
+        if (p == 78) {
+          tt(p - 20, m++);
+        }
+        if (p == 58) {
+          ss(p - 10, n++);
+        }
+        if (p == 33) {
+          ss(p - 10, x++);
+        }
+        break;
+      case 1:
+        one(p);
+        break;
+      case 2:
+        two(p);
+        break;
+      case 3:
+        three(p);
+        break;
+      case 4:
+        four(p);
+        break;
+      case 5:
+        five(p);
+        break;
+      case 6:
+        six(p);
+        break;
+      case 7:
+        seven(p);
+        break;
+      case 8:
+        eight(p);
+        break;
+      case 9:
+        nine(p);
+        break;
+    }
+  }
+
+  function ss(p, i) {
+    clear(p);
+    switch (i % 6) {
+      case 0:
+        zero(p);
+        if (p == 48) {
+          tt(p - 15, y++);
+        }
+        if (p == 23) {
+          hh(p - 13, u++);
+        }
+        break;
+      case 1:
+        one(p);
+        break;
+      case 2:
+        two(p);
+        break;
+      case 3:
+        three(p);
+        break;
+      case 4:
+        four(p);
+        break;
+      case 5:
+        five(p);
+        break;
+    }
+  }
+
+  function hh(p, i) {
+    clear(p);
+    if (u == 24) {
+      u = 0;
+    }
+    switch (i % 10) {
+      case 0:
+        zero(p);
+        if (p == 10) {
+          HH(p - 10, s++);
+        }
+        break;
+      case 1:
+        one(p);
+        break;
+      case 2:
+        two(p);
+        break;
+      case 3:
+        three(p);
+        break;
+      case 4:
+        four(p);
+        break;
+      case 5:
+        five(p);
+        break;
+      case 6:
+        six(p);
+        break;
+      case 7:
+        seven(p);
+        break;
+      case 8:
+        eight(p);
+        break;
+      case 9:
+        nine(p);
+        break;
+    }
+  }
+
+  function HH(p, i) {
+    clear(p);
+    switch (i % 3) {
+      case 0:
+        zero(p);
+        break;
+      case 1:
+        one(p);
+        break;
+      case 2:
+        two(p);
+        break;
+    }
+  }
+
+  function clear(p) {
+    let node = document.getElementsByClassName("node" + p);
+    let node1 = document.getElementsByClassName("node" + (p + hW));
+    let node2 = document.getElementsByClassName("node" + (p + wW));
+    let node3 = document.getElementsByClassName("node" + (p + oneW));
+    for (let i = node.length - 1; i >= 0; i--) {
+      date.removeChild(node[i]);
+    }
+    for (let i = node1.length - 1; i >= 0; i--) {
+      date.removeChild(node1[i]);
+    }
+    for (let i = node2.length - 1; i >= 0; i--) {
+      date.removeChild(node2[i]);
+    }
+    for (let i = node3.length - 1; i >= 0; i--) {
+      date.removeChild(node3[i]);
+    }
+  }
+</script>
+
+<script>
+  let date = document.getElementById("date");
+  let size = 10;
+  let he = [
+    { x: 0, y: 0 },
+    { x: 0, y: 1 },
+    { x: 0, y: 2 },
+    { x: 0, y: 3 },
+    { x: 0, y: 4 },
+    { x: 0, y: 5 },
+    { x: 0, y: 6 },
+    { x: 0, y: 7 },
+  ];
+  let wi = [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: 2, y: 0 },
+    { x: 3, y: 0 },
+    { x: 4, y: 0 },
+  ];
+  let hH = 8.4;
+  let hW = 6.8;
+  let wW = 1.4;
+  let wH = 7.7;
+  let oneW = 4;
+  let pt = 5;
+
+  function init() {
+    zero(0);
+    zero(10);
+    point(20);
+    zero(23);
+    zero(33);
+    zero(48);
+    zero(58);
+    zero(78);
+    zero(88);
+  }
+  init();
+  let i = 0;
+  let k = 0;
+  let m = 0;
+  let n = 0;
+  let y = 0;
+  let x = 0;
+  let u = 0;
+  let s = 0;
+  setInterval(`tt(88, i++)`, 10);
+</script>

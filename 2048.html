@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Canvas 2048</title>
+    <style>
+      body {
+        background-color: #eee;
+        overflow: hidden;
+      }
+
+      h3,
+      h5 {
+        text-align: center;
+        margin: 12px;
+      }
+
+      .small {
+        color: #999;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      canvas {
+        border: 1px solid #ddd;
+        margin: auto;
+        display: block;
+      }
+
+      html {
+        overflow: hidden;
+        min-width: 360px;
+      }
+
+      /* 避免长按复制 */
+      * {
+        padding: 0;
+        margin: 0;
+        -webkit-touch-callout: none; /*系统默认菜单被禁用*/
+        -webkit-user-select: none; /*webkit浏览器*/
+        -khtml-user-select: none; /*早期浏览器*/
+        -moz-user-select: none; /*火狐*/
+        -ms-user-select: none; /*IE10*/
+        user-select: none;
+      }
+      input {
+        -webkit-user-select: auto;
+      }
+
+      #restartBtn {
+        display: block;
+        margin: 24px auto;
+        width: 128px;
+        height: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>2048</h3>
+
+    <h5>
+      score: <span id="score">0</span>
+      <span id="hide">操作方式: 滑动 或 键盘方向键</span>
+    </h5>
+
+    <canvas id="game2048"></canvas>
+
+    <button id="restartBtn" onclick="restart">重新开始</button>
+
+    <script>
+      // 初始化画布
+      let canvas = document.getElementById("game2048");
+      let context = canvas.getContext("2d");
+
+      canvas.height = 360;
+      canvas.width = 360;
+
+      // 全局变量 卡片数据
+      let data = new Array();
+      let score;
+
+      function restart() {
+        // 初始化数据列表
+        for (let i = 0; i < 4; i++) {
+          data[i] = new Array();
+          for (let j = 0; j < 4; j++) {
+            data[i][j] = 0;
+          }
+        }
+
+        score = 0;
+
+        // 添加两张卡片
+        addCard();
+        addCard();
+        refresh();
+      }
+
+      // 添加卡片
+      function addCard() {
+        // 获取空卡片数组
+        let emptyCards = new Array();
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (data[i][j] == 0) {
+              emptyCards.push([i, j]);
+            }
+          }
+        }
+        // 随机挑选一个空卡片 获取该卡片数组索引
+        let index = Math.floor(Math.random() * emptyCards.length);
+        // 填充该卡片 产生一个 2 或 4 的卡片 其中 4 出现的概率为 0.1
+        let value = Math.random() < 0.9 ? 2 : 4;
+        data[emptyCards[index][0]][emptyCards[index][1]] = value;
+
+        if (emptyCards.length == 1 && isGameover()) {
+          alert("游戏结束");
+          return;
+        }
+
+        // 刷新
+        refresh();
+      }
+
+      // 游戏结束检测
+      function isGameover() {
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (data[i][j] == data[i][j + 1]) return false;
+          }
+        }
+        for (let j = 0; j < 4; j++) {
+          for (let i = 0; i < 3; i++) {
+            if (data[i][j] == data[i + 1][j]) return false;
+          }
+        }
+        return true;
+      }
+
+      // 移动卡片
+      function move(direction) {
+        let movedCards = 0;
+        switch (direction) {
+          case 8:
+            // 向上滑动
+            for (let j = 0; j < 4; j++) {
+              let colCards = 0; // 该列已有卡片数量
+              for (let i = 0; i < 4; i++) {
+                // 如果该位置为空 跳过本次遍历
+                if (data[i][j] == 0) continue;
+                // 如果该卡片上方没有其他卡片 则移至顶部
+                if (colCards == 0) {
+                  data[colCards][j] = data[i][j];
+                  if (i != 0) {
+                    data[i][j] = 0;
+                    movedCards++;
+                  }
+                  colCards++;
+                  continue;
+                }
+                // 如果该卡片数字与上方卡片数字一致 则合并
+                if (data[colCards - 1][j] == data[i][j]) {
+                  data[colCards - 1][j] *= 2;
+                  score += data[colCards - 1][j];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                  continue;
+                }
+                // 如果当前位置位于该列顶部 则判定为不可再移动 跳过本次遍历
+                if (i - colCards == 0) {
+                  colCards++;
+                  continue;
+                } else {
+                  // 将当前位置卡片置于该列顶部
+                  data[colCards][j] = data[i][j];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                }
+              }
+            }
+            break;
+          case 2:
+            // 向下滑动
+            for (let j = 0; j < 4; j++) {
+              let colCards = 0; // 该列已有卡片数量
+              for (let i = 3; i >= 0; i--) {
+                // 如果该位置为空 跳过本次遍历
+                if (data[i][j] == 0) continue;
+                // 如果该卡片下方没有其他卡片 则移至底部
+                if (colCards == 0) {
+                  data[3 - colCards][j] = data[i][j];
+                  if (i != 3) {
+                    data[i][j] = 0;
+                    movedCards++;
+                  }
+                  colCards++;
+                  continue;
+                }
+                // 如果该卡片数字与上方卡片数字一致 则合并
+                if (data[4 - colCards][j] == data[i][j]) {
+                  data[4 - colCards][j] *= 2;
+                  score += data[4 - colCards][j];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                  continue;
+                }
+                // 如果当前位置位于该列顶部 则判定为不可再移动 跳过本次遍历
+                if (i + colCards - 3 == 0) {
+                  colCards++;
+                  continue;
+                } else {
+                  // 将当前位置卡片置于该列顶部
+                  data[3 - colCards][j] = data[i][j];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                }
+              }
+            }
+            break;
+          case 4:
+            // 向左滑动
+            for (let i = 0; i < 4; i++) {
+              let colCards = 0; // 该列已有卡片数量
+              for (let j = 0; j < 4; j++) {
+                // 如果该位置为空 跳过本次遍历
+                if (data[i][j] == 0) continue;
+                // 如果该卡片上方没有其他卡片 则移至顶部
+                if (colCards == 0) {
+                  data[i][colCards] = data[i][j];
+                  if (j != 0) {
+                    data[i][j] = 0;
+                    movedCards++;
+                  }
+                  colCards++;
+                  continue;
+                }
+                // 如果该卡片数字与上方卡片数字一致 则合并
+                if (data[i][colCards - 1] == data[i][j]) {
+                  data[i][colCards - 1] *= 2;
+                  score += data[i][colCards - 1];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                  continue;
+                }
+                // 如果当前位置位于该列顶部 则判定为不可再移动 跳过本次遍历
+                if (j - colCards == 0) {
+                  colCards++;
+                  continue;
+                } else {
+                  // 将当前位置卡片置于该列顶部
+                  data[i][colCards] = data[i][j];
+                  data[i][j] = 0;
+                  colCards++;
+                  movedCards++;
+                }
+              }
+            }
+            break;
+          case 6:
+            // 向右滑动
+            for (let i = 0; i < 4; i++) {
+              let rowCards = 0; // 该行已有卡片数量
+              for (let j = 3; j >= 0; j--) {
+                // 如果该位置为空 跳过本次遍历
+                if (data[i][j] == 0) continue;
+                // 如果该卡片下方没有其他卡片 则移至底部
+                if (rowCards == 0) {
+                  data[i][3 - rowCards] = data[i][j];
+                  if (j != 3) {
+                    data[i][j] = 0;
+                    movedCards++;
+                  }
+                  rowCards++;
+                  continue;
+                }
+                // 如果该卡片数字与上方卡片数字一致 则合并
+                if (data[i][4 - rowCards] == data[i][j]) {
+                  data[i][4 - rowCards] *= 2;
+                  score += data[i][4 - rowCards];
+                  data[i][j] = 0;
+                  rowCards++;
+                  movedCards++;
+                  continue;
+                }
+                // 如果当前位置位于该列顶部 则判定为不可再移动 跳过本次遍历
+                if (j + rowCards - 3 == 0) {
+                  rowCards++;
+                  continue;
+                } else {
+                  // 将当前位置卡片置于该列顶部
+                  data[i][3 - rowCards] = data[i][j];
+                  data[i][j] = 0;
+                  rowCards++;
+                  movedCards++;
+                }
+              }
+            }
+            break;
+          default:
+            break;
+        }
+        // 本次移动有效则添加两张卡片
+        if (movedCards != 0) {
+          addCard();
+          refresh();
+        }
+
+        document.getElementById("hide").style.display = "none";
+      }
+
+      // 刷新界面
+      function refresh() {
+        // 绘制卡片
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            switch (data[i][j]) {
+              case 0:
+                context.fillStyle = "pink";
+                break;
+              case 2:
+                context.fillStyle = "gold";
+                break;
+              case 4:
+                context.fillStyle = "skyblue";
+                break;
+              case 8:
+                context.fillStyle = "springgreen";
+                break;
+              case 16:
+                context.fillStyle = "plum";
+                break;
+              case 32:
+                context.fillStyle = "#5b7e91";
+                break;
+              case 64:
+                context.fillStyle = "#ee827c";
+                break;
+              case 128:
+                context.fillStyle = "#e6cde3";
+                break;
+              case 256:
+                context.fillStyle = "#a2d7dd";
+                break;
+              case 512:
+                context.fillStyle = "#d8e698";
+                break;
+              case 1024:
+                context.fillStyle = "#196FC5";
+                break;
+              case 2048:
+                context.fillStyle = "#1662AE";
+                break;
+              case 4096:
+                context.fillStyle = "#135597";
+                break;
+              case 8192:
+                context.fillStyle = "#104880";
+                break;
+              case 16384:
+                context.fillStyle = "#0D3B69";
+                break;
+              default:
+                context.fillStyle = "#0A2E52";
+                break;
+            }
+            context.fillRect(85 * j + 15, 85 * i + 15, 75, 75);
+          }
+        }
+
+        context.font = "20px Georgia";
+        context.fillStyle = "#FFF";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+
+        // 绘制卡片数字
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            // 若卡片数字为0, 则不绘制
+            if (data[i][j] == 0) continue;
+            context.fillText(
+              data[i][j],
+              15 + 37.5 + 85 * j,
+              15 + 37.5 + 85 * i,
+              70
+            );
+          }
+        }
+
+        // 刷新分数
+        document.getElementById("score").innerHTML = score;
+      }
+
+      function load() {
+        document.addEventListener("touchstart", touch, false);
+        document.addEventListener("touchend", touch, false);
+
+        // 触摸开始位置, 推移量
+        let startX, startY, offsetX, offsetY;
+
+        function touch(ev) {
+          let event = ev || window.ev;
+
+          switch (event.type) {
+            case "touchstart":
+              startX = event.touches[0].clientX;
+              startY = event.touches[0].clientY;
+              break;
+            case "touchend":
+              offsetX = event.changedTouches[0].clientX - startX;
+              offsetY = event.changedTouches[0].clientY - startY;
+              // 误触容错 只有滑动距离超过50px才触发
+              if (Math.abs(offsetX) < 50 && Math.abs(offsetY) < 50) {
+                break;
+              }
+              if (Math.abs(offsetX) > Math.abs(offsetY)) {
+                if (offsetX > 0) {
+                  move(6);
+                } else {
+                  move(4);
+                }
+              } else {
+                if (offsetY > 0) {
+                  move(2);
+                } else {
+                  move(8);
+                }
+              }
+            default:
+              break;
+          }
+        }
+      }
+
+      window.addEventListener("load", load, false);
+
+      // 避免长按菜单
+      document
+        .querySelector("body")
+        .addEventListener("touchmove", function (e) {
+          e.preventDefault();
+        });
+
+      // 键盘监听
+      document.onkeydown = function (event) {
+        let e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && (e.keyCode == 38 || e.keyCode == 87)) {
+          // 上 / W
+          move(8);
+        }
+        if (e && (e.keyCode == 40 || e.keyCode == 83)) {
+          // 下 / S
+          move(2);
+        }
+        if (e && (e.keyCode == 37 || e.keyCode == 65)) {
+          // 左 / A
+          move(4);
+        }
+        if (e && (e.keyCode == 39 || e.keyCode == 68)) {
+          // 右 / D
+          move(6);
+        }
+      };
+
+      restart();
+    </script>
+  </body>
+</html>

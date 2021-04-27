@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>贪吃蛇</title>
+    <style>
+      .wrap {
+        width: 800px;
+        height: 800px;
+        border: 2px solid salmon;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -400px;
+        margin-top: -400px;
+      }
+
+      .node {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        position: absolute;
+      }
+
+      .food {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #000;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="wrap"></div>
+    <script>
+      let head = [
+        { x: 2, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: 0 },
+      ];
+      let fod = { x: 39, y: 39 };
+      let wrap = document.getElementById("wrap");
+      let size = 20;
+      let x = 1;
+      let y = 0;
+      let way = "right";
+      let timmer;
+      let time = 100;
+
+      function create() {
+        for (let i = 0; i < head.length; i++) {
+          let div = document.createElement("div");
+          div.className = "node";
+          if (i == 0) {
+            div.style.border = "2px solid #000";
+            div.innerHTML = "★";
+            div.style.textAlign = "center";
+            div.style.lineHeight = "20px";
+          }
+          let color = `rgb(${Math.floor(Math.random() * 256)},${Math.floor(
+            Math.random() * 256
+          )},${Math.floor(Math.random() * 256)})`;
+          div.style.backgroundColor = color;
+          div.style.marginLeft = head[i].x * size + "px";
+          div.style.marginTop = head[i].y * size + "px";
+          wrap.appendChild(div);
+        }
+      }
+
+      function keyDown() {
+        document.onkeydown = function (ev) {
+          let key = ev || window.event;
+          switch (key.keyCode) {
+            case 37:
+              if (way != "right" && way != "left") {
+                way = "left";
+                x = -1;
+                y = 0;
+              }
+
+              break;
+            case 38:
+              if (way != "up" && way != "down") {
+                way = "up";
+                x = 0;
+                y = -1;
+              }
+
+              break;
+            case 39:
+              if (way != "right" && way != "left") {
+                way = "right";
+                x = 1;
+                y = 0;
+              }
+
+              break;
+            case 40:
+              if (way != "down" && way != "up") {
+                way = "down";
+                x = 0;
+                y = 1;
+              }
+              break;
+          }
+        };
+      }
+
+      function move() {
+        let nodes = document.getElementsByClassName("node");
+        for (let i = nodes.length - 1; i >= 0; i--) {
+          wrap.removeChild(nodes[i]);
+        }
+        let minX = head[head.length - 1].x;
+        let minY = head[head.length - 1].y;
+        for (let i = head.length - 1; i > 0; i--) {
+          head[i].x = head[i - 1].x;
+          head[i].y = head[i - 1].y;
+        }
+        head[0].x += x;
+        head[0].y += y;
+        check();
+        if (stack()) {
+          return;
+        }
+
+        let foods = document.getElementsByClassName("food");
+        if (head[0].x == fod.x && head[0].y == fod.y) {
+          for (let i = foods.length - 1; i >= 0; i--) {
+            wrap.removeChild(foods[i]);
+          }
+          food();
+          let newNode = { x: minX, y: minY };
+          head.push(newNode);
+        }
+        create();
+      }
+
+      function check() {
+        if (head[0].x >= 40) {
+          head[0].x = 0;
+        }
+        if (head[0].x < 0) {
+          head[0].x = 39;
+        }
+        if (head[0].y >= 40) {
+          head[0].y = 0;
+        }
+        if (head[0].y < 0) {
+          head[0].y = 39;
+        }
+      }
+
+      function stack() {
+        let headX = head[0].x;
+        let headY = head[0].y;
+        for (let i = head.length - 1; i > 0; i--) {
+          if (head[i].x == headX && head[i].y == headY) {
+            clearInterval(timmer);
+            alert("Game Over!!");
+            return true;
+          }
+        }
+      }
+
+      function food() {
+        let food = document.createElement("div");
+        let color = `rgb(${Math.floor(Math.random() * 256)},${Math.floor(
+          Math.random() * 256
+        )},${Math.floor(Math.random() * 256)})`;
+        food.className = "food";
+        food.style.backgroundColor = color;
+        fod.x = Math.floor(Math.random() * 40);
+        fod.y = Math.floor(Math.random() * 40);
+        for (let i = head.length - 1; i >= 0; i--) {
+          while (fod.x == head[i].x) {
+            fod.x = Math.floor(Math.random() * 40);
+          }
+          while (fod.y == head[i].y) {
+            fod.y = Math.floor(Math.random() * 40);
+          }
+        }
+        food.style.marginLeft = fod.x * size + "px";
+        food.style.marginTop = fod.y * size + "px";
+        wrap.appendChild(food);
+      }
+
+      function start() {
+        create();
+        keyDown();
+        food();
+        timmer = setInterval(move, time);
+      }
+
+      start();
+    </script>
+  </body>
+</html>
